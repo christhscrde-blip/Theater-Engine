@@ -99,24 +99,29 @@ def is_location(text: str) -> bool:
 
 def parse_speaker_line(text: str) -> dict[str, str] | None:
     stripped = text.strip()
-    match = re.match(
-        r"^([A-ZÄÖÜa-zäöüß][A-ZÄÖÜa-zäöüß.\s\-]+?)(\s*\([^)]*\))?\s*[\.:]\s*(.*)$",
-        stripped,
-    )
-    if not match:
-        return None
+    lowered = stripped.lower()
 
-    raw_name = match.group(1).strip()
-    canonical = CHARACTER_ALIASES.get(normalize_name(raw_name))
-    if not canonical:
-        return None
+    for alias in sorted(CHARACTER_ALIASES, key=len, reverse=True):
+        if not lowered.startswith(alias):
+            continue
 
-    return {
-        "raw": raw_name,
-        "canonical": canonical,
-        "stage_inline": (match.group(2) or "").strip(),
-        "after": (match.group(3) or "").strip(),
-    }
+        raw_name = stripped[: len(alias)].strip()
+        remainder = stripped[len(alias) :]
+        match = re.match(
+            r"^\s*(?P<stage>\([^)]*\))?\s*[\.:]\s*(?P<after>.*)$",
+            remainder,
+        )
+        if not match:
+            continue
+
+        return {
+            "raw": raw_name,
+            "canonical": CHARACTER_ALIASES[alias],
+            "stage_inline": (match.group("stage") or "").strip(),
+            "after": (match.group("after") or "").strip(),
+        }
+
+    return None
 
 
 def is_stage_only(text: str) -> bool:
@@ -196,10 +201,14 @@ def classify_docx(docx_path: str | Path) -> list[ClassifiedParagraph]:
     return classify_texts([paragraph.text for paragraph in doc.paragraphs])
 
 
-def build_report(docx_path: str | Path, paragraphs: list[ClassifiedParagraph]) -> AnalysisReport:
+def build_report(
+    docx_path: str | Path, paragraphs: list[ClassifiedParagraph]
+) -> AnalysisReport:
     type_counts = Counter(item.type.value for item in paragraphs)
     speaker_counts = Counter(item.speaker for item in paragraphs if item.speaker)
-    difficult_counts = Counter(word for item in paragraphs for word in item.difficult_words)
+    difficult_counts = Counter(
+        word for item in paragraphs for word in item.difficult_words
+    )
     manual_review_items = [
         {
             "paragraph": item.index,
@@ -208,7 +217,8 @@ def build_report(docx_path: str | Path, paragraphs: list[ClassifiedParagraph]) -
             "flags": "; ".join(item.flags),
         }
         for item in paragraphs
-        if item.type == ParagraphType.UNCLASSIFIED or "needs_manual_review" in item.flags
+        if item.type == ParagraphType.UNCLASSIFIED
+        or "needs_manual_review" in item.flags
     ]
     return AnalysisReport(
         source_file=str(docx_path),

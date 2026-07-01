@@ -105,11 +105,13 @@ Erfolgskriterium:
 
 ## v0.7 – DocumentModel
 
+Status: begonnen
+
 Ziele:
 
-- Word-Absätze in ein internes Dokumentmodell übertragen
-- Klassifikation, Sprecher, Regieanteile und schwierige Wörter getrennt speichern
-- Formatter arbeitet gegen das Modell, nicht direkt gegen rohe Word-Absätze
+- Word-Absätze in ein internes Dokumentmodell übertragen – Basis umgesetzt
+- Klassifikation, Sprecher, Regieanteile und schwierige Wörter getrennt speichern – Basis umgesetzt
+- Formatter arbeitet gegen das Modell, nicht direkt gegen rohe Word-Absätze – ausstehend
 
 Erfolgskriterium:
 

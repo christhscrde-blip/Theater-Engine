@@ -23,6 +23,10 @@ Erst danach wird formatiert. Wenn ein Absatz nicht sicher erkannt wird, wird er 
 
 Der sichtbare Text darf sich durch Formatierung nicht verändern. Dafür wird vor und nach jedem Lauf ein SHA-256-Hash über alle Absatztexte gebildet. Wenn der Hash abweicht, gilt die Ausgabe als fehlerhaft.
 
+## Internes DocumentModel
+
+Die Engine besitzt nun ein internes, texttreues `DocumentModel`. Es übernimmt DOCX-Absätze oder Textlisten, klassifiziert jeden Absatz genau einmal und speichert zusätzliche Segmente für Sprecher, Repliken und Inline-Regie. Jedes Modell prüft, dass aus den Segmenten wieder exakt derselbe sichtbare Text entsteht.
+
 ## Geplante Pipeline
 
 1. DOCX einlesen

@@ -279,6 +279,24 @@ Regeln:
 - Die Liste muss versioniert sein.
 - Neue Wörter werden nur bewusst ergänzt.
 
+
+## Internes DocumentModel
+
+Das interne `DocumentModel` ist die stabile Übergabeschicht zwischen DOCX-Einlesung, Klassifikation und späterer Formatierung. Es speichert den sichtbaren Absatztext unverändert und ergänzt ausschließlich Metadaten.
+
+Bestandteile:
+
+- `DocumentModel`: Quelle, sichtbarer Texthash und geordnete Absätze.
+- `DocumentParagraph`: Absatzindex, Originaltext, genau eine Klassifikation und verlustfreie Textsegmente.
+- `TextSpan`: zusammenhängender Textbereich mit Rolle wie Sprecher, Replik, eigener Regie oder Inline-Regie.
+
+Integritätsregeln:
+
+- Die Verkettung aller `TextSpan.text`-Werte eines Absatzes muss exakt dem Absatztext entsprechen.
+- Der aus allen Absatztexten rekonstruierte sichtbare Text muss zum gespeicherten SHA-256 passen.
+- Unklare Absätze bleiben als `UNCLASSIFIED` beziehungsweise `needs_manual_review` erhalten und werden nicht geraten.
+- Inline-Regie wird nur als Segment markiert; der sichtbare Text wird dabei nicht verändert.
+
 ## Qualitätsregeln
 
 Ein Engine-Lauf ist nur erfolgreich, wenn:
