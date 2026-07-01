@@ -279,6 +279,73 @@ Regeln:
 - Die Liste muss versioniert sein.
 - Neue Wörter werden nur bewusst ergänzt.
 
+
+## Internes DocumentModel
+
+Das interne `DocumentModel` ist die stabile Übergabeschicht zwischen DOCX-Einlesung, Klassifikation und späterer Formatierung. Es speichert den sichtbaren Absatztext unverändert und ergänzt ausschließlich Metadaten.
+
+Bestandteile:
+
+- `DocumentModel`: Quelle, sichtbarer Texthash und geordnete Absätze.
+- `DocumentParagraph`: Absatzindex, Originaltext, genau eine Klassifikation und verlustfreie Textsegmente.
+- `TextSpan`: zusammenhängender Textbereich mit Rolle wie Sprecher, Replik, eigener Regie oder Inline-Regie.
+
+Integritätsregeln:
+
+- Die Verkettung aller `TextSpan.text`-Werte eines Absatzes muss exakt dem Absatztext entsprechen.
+- Der aus allen Absatztexten rekonstruierte sichtbare Text muss zum gespeicherten SHA-256 passen.
+- Unklare Absätze bleiben als `UNCLASSIFIED` beziehungsweise `needs_manual_review` erhalten und werden nicht geraten.
+- Inline-Regie wird nur als Segment markiert; der sichtbare Text wird dabei nicht verändert.
+
+
+## Style Engine
+
+Die Style Engine trennt Formatierungsregeln vollständig vom Python-Code. Sie lädt YAML-Style-Dateien aus `styles/` und stellt typisierte Style-Objekte für Textsegmente bereit.
+
+Pflichtfelder je vollständigem Style:
+
+- `font_family`
+- `font_size`
+- `bold`
+- `italic`
+- `underline`
+- `text_color`
+- `highlight_color`
+- `alignment`
+- `left_indent`
+- `right_indent`
+- `first_line_indent`
+- `spacing_before`
+- `spacing_after`
+- `line_spacing`
+
+Regeln:
+
+- `defaults` muss alle Pflichtfelder enthalten.
+- Einzelne Span-Styles dürfen nur Abweichungen definieren und erben fehlende Werte aus `defaults`.
+- Farben müssen hexadezimale Werte im Format `#RRGGBB` sein; `highlight_color` darf `null` sein.
+- Erlaubte Ausrichtungen sind `left`, `center`, `right` und `justify`.
+- Der Formatter darf keine hartcodierten Farben, Schriftgrößen oder Abstände enthalten.
+- Die Style Engine verändert niemals sichtbaren Dokumenttext.
+
+
+## FormattingPlan
+
+Der `FormattingPlan` ist die rendererunabhängige Planungsschicht zwischen `DocumentModel` und späteren Ausgabe-Renderern. Er enthält keine DOCX-Schreiblogik.
+
+Bestandteile:
+
+- `FormattingPlan`: Quelle, sichtbarer Texthash, Style-Name und geordnete Absatzpläne.
+- `ParagraphFormattingPlan`: Absatzindex, Absatztyp, Sprecher, Prüffallstatus und Formatierungsläufe.
+- `FormattingRun`: Textsegment, `TextSpanType`, Sprecher, Flags und der zugehörige `TextStyle`.
+
+Integritätsregeln:
+
+- Die Verkettung aller `FormattingRun.text`-Werte eines Absatzes muss exakt den Absatztext rekonstruieren.
+- Die Verkettung aller Absatzpläne muss denselben sichtbaren Text und denselben SHA-256 wie das `DocumentModel` ergeben.
+- Ein Plan darf nur aus einem integren `DocumentModel` gebaut werden.
+- Der Plan verändert niemals sichtbaren Dokumenttext und rendert noch keine Word-Formatierung.
+
 ## Qualitätsregeln
 
 Ein Engine-Lauf ist nur erfolgreich, wenn:

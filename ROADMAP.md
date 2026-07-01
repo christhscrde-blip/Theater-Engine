@@ -39,14 +39,16 @@ Erfolgskriterium:
 - alle bekannten Problemfälle haben Tests
 - keine Replik wird als Regie oder Sprecher fehlklassifiziert
 
-## v0.3 – Style-Konfiguration
+## v0.3 – Style Engine
+
+Status: umgesetzt
 
 Ziele:
 
-- `styles/theater.yaml` einführen
-- Stylewerte aus Datei laden
-- Farben, Größen und Abstände aus Code entfernen
-- Theme-System vorbereiten
+- `styles/theater.yaml` einführen – umgesetzt
+- Stylewerte aus Datei laden – umgesetzt
+- Farben, Größen und Abstände aus Code entfernen – vorbereitet; Formatter noch ausstehend
+- Theme-System vorbereiten – umgesetzt mit `theater`, `classic` und `minimal`
 
 Geplante Styles:
 
@@ -58,6 +60,24 @@ Erfolgskriterium:
 
 - Formatierungsregeln sind datengetrieben
 - Styles können geändert werden, ohne Python-Code anzufassen
+- Style-Dateien werden validiert und liefern typisierte Style-Objekte
+
+
+## v0.3.5 – FormattingPlan
+
+Status: umgesetzt
+
+Ziele:
+
+- `DocumentModel` und Style Engine über eine rendererunabhängige Planungsschicht verbinden – umgesetzt
+- Formatierungsläufe pro Textsegment erzeugen – umgesetzt
+- Sichtbare Textintegrität im Plan erneut prüfen – umgesetzt
+- Renderer-Implementierung vermeiden – umgesetzt
+
+Erfolgskriterium:
+
+- Der spätere Formatter/Renderer kann gegen einen geprüften Plan arbeiten
+- Keine Farben, Schriftgrößen oder Abstände müssen im Renderer hartcodiert werden
 
 ## v0.4 – Formatierungs-Engine v1
 
@@ -105,11 +125,13 @@ Erfolgskriterium:
 
 ## v0.7 – DocumentModel
 
+Status: begonnen
+
 Ziele:
 
-- Word-Absätze in ein internes Dokumentmodell übertragen
-- Klassifikation, Sprecher, Regieanteile und schwierige Wörter getrennt speichern
-- Formatter arbeitet gegen das Modell, nicht direkt gegen rohe Word-Absätze
+- Word-Absätze in ein internes Dokumentmodell übertragen – Basis umgesetzt
+- Klassifikation, Sprecher, Regieanteile und schwierige Wörter getrennt speichern – Basis umgesetzt
+- Formatter arbeitet gegen das Modell, nicht direkt gegen rohe Word-Absätze – ausstehend
 
 Erfolgskriterium:
 

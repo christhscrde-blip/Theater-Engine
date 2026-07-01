@@ -3,16 +3,18 @@ from src.models import ParagraphType
 
 
 def test_basic_dialogue_classification():
-    paragraphs = classify_texts([
-        "Erster Akt",
-        "1. Szene",
-        "Saal im Moorischen Schloss.",
-        "Franz.",
-        "Aber ist Euch auch wohl, Vater?",
-        "D. a. Moor (begierig).",
-        "Nachrichten von meinem Sohne Karl?",
-        "Seite 1",
-    ])
+    paragraphs = classify_texts(
+        [
+            "Erster Akt",
+            "1. Szene",
+            "Saal im Moorischen Schloss.",
+            "Franz.",
+            "Aber ist Euch auch wohl, Vater?",
+            "D. a. Moor (begierig).",
+            "Nachrichten von meinem Sohne Karl?",
+            "Seite 1",
+        ]
+    )
 
     assert paragraphs[0].type == ParagraphType.ACT_HEADING
     assert paragraphs[1].type == ParagraphType.SCENE_HEADING
@@ -39,3 +41,17 @@ def test_unknown_without_context_requires_review():
     paragraph = classify_texts(["Irgendein einzelner Satz ohne Sprecher."])[0]
     assert paragraph.type == ParagraphType.UNCLASSIFIED
     assert "needs_manual_review" in paragraph.flags
+
+
+def test_abbreviated_speaker_with_stage_is_detected_without_context_leak():
+    paragraph = classify_texts(["D. a. Moor (begierig)."])[0]
+
+    assert paragraph.type == ParagraphType.SPEAKER_WITH_STAGE
+    assert paragraph.speaker == "Der alte Moor"
+
+
+def test_abbreviated_speaker_with_replique_is_detected():
+    paragraph = classify_texts(["D. a. Moor: Nachrichten von meinem Sohne Karl?"])[0]
+
+    assert paragraph.type == ParagraphType.SPEAKER_WITH_REPLIQUE
+    assert paragraph.speaker == "Der alte Moor"

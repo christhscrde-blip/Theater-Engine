@@ -1,0 +1,31 @@
+name: theater
+defaults:
+  font_family: Times New Roman
+  font_size: 11
+  bold: false
+  italic: false
+  underline: false
+  text_color: "#111111"
+  highlight_color: null
+  alignment: left
+  left_indent: 0
+  right_indent: 0
+  first_line_indent: 0
+  spacing_before: 0
+  spacing_after: 6
+  line_spacing: 1.15
+styles:
+  plain: {}
+  speaker:
+    italic: true
+    text_color: "#333333"
+    spacing_before: 8
+  replique:
+    text_color: "#000000"
+  stage_direction:
+    italic: true
+    text_color: "#666666"
+    left_indent: 12
+  inline_stage:
+    italic: true
+    text_color: "#777777"

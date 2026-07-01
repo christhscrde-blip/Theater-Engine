@@ -1,0 +1,25 @@
+name: minimal
+defaults:
+  font_family: Arial
+  font_size: 10
+  bold: false
+  italic: false
+  underline: false
+  text_color: "#000000"
+  highlight_color: null
+  alignment: left
+  left_indent: 0
+  right_indent: 0
+  first_line_indent: 0
+  spacing_before: 0
+  spacing_after: 0
+  line_spacing: 1.0
+styles:
+  plain: {}
+  speaker:
+    bold: true
+  replique: {}
+  stage_direction:
+    italic: true
+  inline_stage:
+    italic: true

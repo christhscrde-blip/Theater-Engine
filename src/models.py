@@ -18,6 +18,22 @@ class ParagraphType(str, Enum):
     UNCLASSIFIED = "unclassified"
 
 
+class TextSpanType(str, Enum):
+    PLAIN = "plain"
+    SPEAKER = "speaker"
+    REPLIQUE = "replique"
+    STAGE_DIRECTION = "stage_direction"
+    INLINE_STAGE = "inline_stage"
+
+
+@dataclass(frozen=True)
+class TextSpan:
+    type: TextSpanType
+    text: str
+    speaker: str = ""
+    flags: tuple[str, ...] = ()
+
+
 @dataclass(frozen=True)
 class ClassifiedParagraph:
     index: int

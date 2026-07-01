@@ -8,37 +8,8 @@ from docx import Document
 
 from .difficult_words import find_difficult_words
 from .models import AnalysisReport, ClassifiedParagraph, ParagraphType
+from .speaker_parser import CHARACTER_ALIASES, normalize_name, parse_speaker_line
 from .verifier import visible_text_hash
-
-CHARACTER_ALIASES: dict[str, str] = {
-    "franz": "Franz",
-    "franz von moor": "Franz",
-    "d. a. moor": "Der alte Moor",
-    "der alte moor": "Der alte Moor",
-    "alter moor": "Der alte Moor",
-    "karl v. moor": "Karl von Moor",
-    "karl von moor": "Karl von Moor",
-    "moor": "Karl von Moor",
-    "amalia": "Amalia",
-    "spiegelberg": "Spiegelberg",
-    "schweizer": "Schweizer",
-    "roller": "Roller",
-    "razmann": "Razmann",
-    "schufterle": "Schufterle",
-    "hermann": "Hermann",
-    "daniel": "Daniel",
-    "kosinsky": "Kosinsky",
-    "schwarz": "Schwarz",
-    "grimm": "Grimm",
-    "ein räuber": "Ein Räuber",
-    "räuber": "Räuber",
-    "alle": "Alle",
-    "ein bedienter": "Ein Bedienter",
-    "bedienter": "Bedienter",
-    "pastor moser": "Pastor Moser",
-    "moser": "Moser",
-    "pater": "Pater",
-}
 
 LOCATION_KEYWORDS = (
     "saal",
@@ -54,13 +25,6 @@ LOCATION_KEYWORDS = (
     "moorischen",
     "böhmischen",
 )
-
-
-def normalize_name(text: str) -> str:
-    text = text.strip()
-    text = re.sub(r"\s+", " ", text)
-    text = text.strip(".:; ")
-    return text.lower()
 
 
 def is_page_marker(text: str) -> bool:
@@ -95,28 +59,6 @@ def is_location(text: str) -> bool:
         return False
     lowered = stripped.lower()
     return any(keyword in lowered for keyword in LOCATION_KEYWORDS)
-
-
-def parse_speaker_line(text: str) -> dict[str, str] | None:
-    stripped = text.strip()
-    match = re.match(
-        r"^([A-ZÄÖÜa-zäöüß][A-ZÄÖÜa-zäöüß.\s\-]+?)(\s*\([^)]*\))?\s*[\.:]\s*(.*)$",
-        stripped,
-    )
-    if not match:
-        return None
-
-    raw_name = match.group(1).strip()
-    canonical = CHARACTER_ALIASES.get(normalize_name(raw_name))
-    if not canonical:
-        return None
-
-    return {
-        "raw": raw_name,
-        "canonical": canonical,
-        "stage_inline": (match.group(2) or "").strip(),
-        "after": (match.group(3) or "").strip(),
-    }
 
 
 def is_stage_only(text: str) -> bool:
@@ -196,10 +138,14 @@ def classify_docx(docx_path: str | Path) -> list[ClassifiedParagraph]:
     return classify_texts([paragraph.text for paragraph in doc.paragraphs])
 
 
-def build_report(docx_path: str | Path, paragraphs: list[ClassifiedParagraph]) -> AnalysisReport:
+def build_report(
+    docx_path: str | Path, paragraphs: list[ClassifiedParagraph]
+) -> AnalysisReport:
     type_counts = Counter(item.type.value for item in paragraphs)
     speaker_counts = Counter(item.speaker for item in paragraphs if item.speaker)
-    difficult_counts = Counter(word for item in paragraphs for word in item.difficult_words)
+    difficult_counts = Counter(
+        word for item in paragraphs for word in item.difficult_words
+    )
     manual_review_items = [
         {
             "paragraph": item.index,
@@ -208,7 +154,8 @@ def build_report(docx_path: str | Path, paragraphs: list[ClassifiedParagraph]) -
             "flags": "; ".join(item.flags),
         }
         for item in paragraphs
-        if item.type == ParagraphType.UNCLASSIFIED or "needs_manual_review" in item.flags
+        if item.type == ParagraphType.UNCLASSIFIED
+        or "needs_manual_review" in item.flags
     ]
     return AnalysisReport(
         source_file=str(docx_path),
