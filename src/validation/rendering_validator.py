@@ -14,6 +14,7 @@ from .validation_errors import (
     DuplicateParagraph,
     InvalidFormattingPlan,
     InvalidParagraph,
+    InvalidSpan,
     MissingStyle,
     OverlappingSpan,
     UnknownStyle,
@@ -136,7 +137,7 @@ def _validate_run(
     errors: list[InvalidFormattingPlan] = []
     if run.span_index != expected_span_index:
         errors.append(
-            InvalidParagraph(
+            InvalidSpan(
                 f"Paragraph {paragraph.index} span order is not continuous: "
                 f"expected {expected_span_index}, got {run.span_index}"
             )
@@ -149,19 +150,19 @@ def _validate_run(
         )
     if run.start_offset > expected_offset:
         errors.append(
-            InvalidParagraph(
+            InvalidSpan(
                 f"Paragraph {paragraph.index} span {run.span_index} has a gap before it"
             )
         )
     if run.end_offset != run.start_offset + len(run.text):
         errors.append(
-            InvalidParagraph(
+            InvalidSpan(
                 f"Paragraph {paragraph.index} span {run.span_index} range does not match text length"
             )
         )
     if run.end_offset > paragraph_length:
         errors.append(
-            InvalidParagraph(
+            InvalidSpan(
                 f"Paragraph {paragraph.index} span {run.span_index} exceeds paragraph boundaries"
             )
         )

@@ -6,6 +6,7 @@ from src.validation import (
     DuplicateParagraph,
     InvalidFormattingPlan,
     InvalidParagraph,
+    InvalidSpan,
     MissingStyle,
     OverlappingSpan,
     UnknownStyle,
@@ -88,6 +89,23 @@ def test_overlapping_spans_are_rejected():
 
     assert report.valid is False
     assert isinstance(first_error_of_type(report, OverlappingSpan), OverlappingSpan)
+
+
+def test_non_continuous_span_order_is_rejected():
+    plan, style_sheet = make_plan()
+    paragraph = plan.paragraphs[0]
+    broken_run = replace(paragraph.runs[1], span_index=3)
+    broken = replace(
+        plan,
+        paragraphs=(
+            replace(paragraph, runs=(paragraph.runs[0], broken_run, paragraph.runs[2])),
+        ),
+    )
+
+    report = validate_formatting_plan(broken, style_sheet)
+
+    assert report.valid is False
+    assert isinstance(first_error_of_type(report, InvalidSpan), InvalidSpan)
 
 
 def test_invalid_alignment_is_rejected():

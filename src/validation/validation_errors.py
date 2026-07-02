@@ -17,6 +17,10 @@ class InvalidParagraph(InvalidFormattingPlan):
     pass
 
 
+class InvalidSpan(InvalidFormattingPlan):
+    pass
+
+
 class UnknownStyle(InvalidFormattingPlan):
     pass
 
