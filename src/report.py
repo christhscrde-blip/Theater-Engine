@@ -2,10 +2,24 @@ from __future__ import annotations
 
 import csv
 import json
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from .models import AnalysisReport, ClassifiedParagraph
+
+
+@dataclass(frozen=True)
+class FormattingReport:
+    source_file: Path
+    output_file: Path
+    runtime_seconds: float
+    paragraph_count: int
+    classified_paragraph_count: int
+    manual_review_count: int
+    validation_warning_count: int
+    validation_error_count: int
+    visible_text_integrity: bool
+    output_hash: str
 
 
 def ensure_dir(path: str | Path) -> Path:
